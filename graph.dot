@@ -1,0 +1,16 @@
+digraph Tree {
+    rankdir=TB;
+    splines=line;
+    node [shape=box, style="rounded,filled", fillcolor="#E6F3FF", color="#4A90E2", fontcolor="#000000", penwidth=1.5];
+    edge [penwidth=1.2];
+
+    node_0 [label="\"Это животное?\""];
+    node_0 -> node_1 [label=" ДА", color="#44C744", fontcolor="#44C744"];
+    node_1 [label="\"длинный\""];
+    node_1 -> node_3 [label=" ДА", color="#44C744", fontcolor="#44C744"];
+    node_3 [label="\"жираф\""];
+    node_1 -> node_4 [label=" НЕТ", color="#C828B8", fontcolor="#C828B8"];
+    node_4 [label="\"Кошка\""];
+    node_0 -> node_2 [label=" НЕТ", color="#C828B8", fontcolor="#C828B8"];
+    node_2 [label="\"Не известно кто\""];
+}
