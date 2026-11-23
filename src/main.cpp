@@ -1,5 +1,7 @@
+#include "PathStack.h"
 #include <assert.h>
 #include <fcntl.h>
+#include <math.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
@@ -70,6 +72,10 @@ int build_tree(Tree* tree, const char** ptr) {
     }
 
     return -1;
+}
+
+int ceil_log2(int x) {
+    return (int)ceil(log2(x));
 }
 
 void expand_tree(Tree* tree) {
@@ -186,10 +192,11 @@ bool ask_que(const char* que) {
 
 void add_new_node(Tree* tree, int old_node_idx) {
     assert(tree);
-    Node* old_node = &tree->data[old_node_idx];
 
-    if (tree->free == tree->capacity)
+    if (tree->free + 2 == tree->capacity)
         expand_tree(tree);
+
+    Node* old_node = &tree->data[old_node_idx];
 
     printf("Кто же это?\n");
 
@@ -214,6 +221,8 @@ void add_new_node(Tree* tree, int old_node_idx) {
     tree->data[tree->free].val = temp;
     tree->data[tree->free].left_child_idx = -1;
     tree->data[tree->free].right_child_idx = -1;
+
+    tree->free++;
 }
 
 void guess_word(Tree* tree, int idx) {
@@ -300,11 +309,60 @@ void save_exit(Tree* tree) {
     FILE* file = fopen(file_name, "w");
     assert(file);
 
-    fprintf(file, "%d ", tree->free);
+    fprintf(file, "%d ", tree->free + 1);
 
     save_node(tree, tree->root, file);
 
     fclose(file);
+}
+
+void graph_traversal(Tree* tree, int idx, char* key, bool* flag, PathStack* st) {
+    assert(tree);
+
+    if (idx == -1) {
+        return;
+    }
+
+    if (tree->data[idx].left_child_idx == -1 && tree->data[idx].right_child_idx == -1) {
+        if (strcmp(key, tree->data[idx].val) == 0) {
+            *flag = true;
+            return;
+        }
+    }
+
+    graph_traversal(tree, tree->data[idx].left_child_idx, key, flag, st);
+    if (*flag) {
+        stack_push(st, tree->data[idx].val, true);
+        return;
+    }
+
+    graph_traversal(tree, tree->data[idx].right_child_idx, key, flag, st);
+    if (*flag) {
+        stack_push(st, tree->data[idx].val, false);
+        return;
+    }
+}
+
+void definition_word(Tree* tree) {
+    assert(tree);
+
+    char input[BUFFER_SIZE] = { };
+
+    PathStack st = stack_initialization(ceil_log2(tree->free));
+
+    printf("Назовите объект: ");
+    scanf(" %" BUF_SIZE "[^\n]", input);
+
+    bool is_find = false;
+    graph_traversal(tree, tree->root, input, &is_find, &st);
+
+    if (is_find) {
+        stack_print(&st);
+    } else {
+        printf("Такого объекта не найдено :(\n");
+    }
+
+    stack_destroy(&st);
 }
 
 void handle_op(Tree* tree, UserOp op) {
@@ -314,10 +372,11 @@ void handle_op(Tree* tree, UserOp op) {
     case GUESS_OP:
         guess_word(tree, tree->root);
         break;
-    case DEFINITION_OP:
-        break;
     case SHOW_OP:
         show_tree(tree);
+        break;
+    case DEFINITION_OP:
+        definition_word(tree);
         break;
     case SAVE_OP:
         save_exit(tree);
