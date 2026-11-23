@@ -40,19 +40,19 @@ void stack_push(PathStack* st, const char* val, bool is_yes) {
 void stack_print(PathStack* st) {
     assert(st);
 
-    size_t buf_size = st->string_len + st->free * 2 + 1;
+    size_t buf_size = st->string_len * 2;
     char* res = (char*)calloc(buf_size, sizeof(char));
     assert(res);
 
     size_t shift = 0;
 
-    for (int i = (int)st->free - 1; i >= 1; i--) {
+    for (int i = (int)st->free - 1; i >= 0; i--) {
         if (!st->data[i].is_yes) {
             shift += sprintf(res + shift, "не ");
         }
         shift += sprintf(res + shift, "%s", st->data[i].val);
 
-        if (i > 1) {
+        if (i > 0) {
             shift += sprintf(res + shift, ", ");
         }
     }

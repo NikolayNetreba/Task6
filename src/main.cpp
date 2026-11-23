@@ -36,7 +36,7 @@ typedef struct {
 void text_dump(Tree tree, int idx) {
     if (idx == -1)
         return;
-    printf("node: %s\n", tree.data[idx]);
+    printf("node: %s\n", tree.data[idx].val);
     printf("left: %d, right: %d\n", tree.data[idx].left_child_idx, tree.data[idx].right_child_idx);
 
     text_dump(tree, tree.data[idx].left_child_idx);
@@ -193,7 +193,7 @@ bool ask_que(const char* que) {
 void add_new_node(Tree* tree, int old_node_idx) {
     assert(tree);
 
-    if (tree->free + 2 == tree->capacity)
+    if (tree->free + 2 >= tree->capacity)
         expand_tree(tree);
 
     Node* old_node = &tree->data[old_node_idx];
@@ -365,6 +365,9 @@ void definition_word(Tree* tree) {
     stack_destroy(&st);
 }
 
+void compare_words(Tree* tree) {
+}
+
 void handle_op(Tree* tree, UserOp op) {
     assert(tree);
 
@@ -377,6 +380,9 @@ void handle_op(Tree* tree, UserOp op) {
         break;
     case DEFINITION_OP:
         definition_word(tree);
+        break;
+    case COMPARE_OP:
+        compare_words(tree);
         break;
     case SAVE_OP:
         save_exit(tree);
@@ -393,7 +399,9 @@ int main(int argc, char* argv[]) {
         file_name = argv[1];
     }
 
-    const char* ptr = open_and_read_from_file(file_name);
+    const char* file_buf = open_and_read_from_file(file_name);
+    const char* ptr = file_buf;
+
     if (!ptr) {
         perror("Error opening file");
         return EXIT_FAILURE;

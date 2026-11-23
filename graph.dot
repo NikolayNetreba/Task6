@@ -10,11 +10,7 @@ digraph Tree {
     node_1 -> node_2 [label=" ДА", color="#44C744", fontcolor="#44C744"];
     node_2 [label="\"жираф\""];
     node_1 -> node_3 [label=" НЕТ", color="#C828B8", fontcolor="#C828B8"];
-    node_3 [label="\"он царь\""];
-    node_3 -> node_5 [label=" ДА", color="#44C744", fontcolor="#44C744"];
-    node_5 [label="\"лев\""];
-    node_3 -> node_6 [label=" НЕТ", color="#C828B8", fontcolor="#C828B8"];
-    node_6 [label="\"Кошка\""];
+    node_3 [label="\"Кошка\""];
     node_0 -> node_4 [label=" НЕТ", color="#C828B8", fontcolor="#C828B8"];
     node_4 [label="\"Не известно кто\""];
 }
