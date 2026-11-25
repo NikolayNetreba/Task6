@@ -13,19 +13,6 @@ const char* file_name = "data.txt";
 const size_t BUFFER_SIZE = 128;
 #define BUF_SIZE "127"
 
-typedef struct {
-    const char* val;
-    int left_child_idx;
-    int right_child_idx;
-} Node;
-
-typedef struct {
-    Node* data;
-    int root;
-    int free;
-    int capacity;
-} Tree;
-
 #define DUMP(tree, idx)                                 \
     do {                                                \
         printf("==================================\n"); \
@@ -316,48 +303,51 @@ void save_exit(Tree* tree) {
     fclose(file);
 }
 
-void graph_traversal(Tree* tree, int idx, char* key, bool* flag, PathStack* st) {
+bool graph_traversal(Tree* tree, int idx, const char* key, PathStack* st) {
     assert(tree);
+    assert(key);
+    assert(st);
 
     if (idx == -1) {
-        return;
+        return false;
     }
 
-    if (tree->data[idx].left_child_idx == -1 && tree->data[idx].right_child_idx == -1) {
-        if (strcmp(key, tree->data[idx].val) == 0) {
-            *flag = true;
-            return;
-        }
+    Node* node = &tree->data[idx];
+
+    if (node->left_child_idx == -1 && node->right_child_idx == -1) {
+        return strcmp(key, node->val) == 0;
     }
 
-    graph_traversal(tree, tree->data[idx].left_child_idx, key, flag, st);
-    if (*flag) {
-        stack_push(st, tree->data[idx].val, true);
-        return;
+    if (graph_traversal(tree, node->left_child_idx, key, st)) {
+        stack_push(st, true);
+        return true;
     }
 
-    graph_traversal(tree, tree->data[idx].right_child_idx, key, flag, st);
-    if (*flag) {
-        stack_push(st, tree->data[idx].val, false);
-        return;
+    if (graph_traversal(tree, node->right_child_idx, key, st)) {
+        stack_push(st, false);
+        return true;
     }
+
+    return false;
 }
 
 void definition_word(Tree* tree) {
     assert(tree);
 
     char input[BUFFER_SIZE] = { };
-
-    PathStack st = stack_initialization(ceil_log2(tree->free));
-
     printf("Назовите объект: ");
-    scanf(" %" BUF_SIZE "[^\n]", input);
+    if (scanf(" %" BUF_SIZE "[^\n]", input) != 1) {
+        return;
+    }
 
-    bool is_find = false;
-    graph_traversal(tree, tree->root, input, &is_find, &st);
+    PathStack st = stack_initialization((size_t)ceil_log2(tree->free > 1 ? tree->free : 2));
 
-    if (is_find) {
-        stack_print(&st);
+    if (graph_traversal(tree, tree->root, input, &st)) {
+        if (st.free == 0) {
+            printf("%s — корень/единственный узел без признаков\n", input);
+        } else {
+            stack_print(tree, tree->root, &st, (int)st.free - 1, 0);
+        }
     } else {
         printf("Такого объекта не найдено :(\n");
     }
@@ -365,7 +355,40 @@ void definition_word(Tree* tree) {
     stack_destroy(&st);
 }
 
+void input_object(char* val) {
+    printf("Назовите объект: ");
+    scanf(" %" BUF_SIZE "[^\n]", val);
+
+    int ch = 0;
+    while ((ch = getchar()) != '\n' && ch != EOF) { }
+}
+
+void write_comare_stack_inf(PathStack* st_1, PathStack* st_2) {
+    assert(st_1);
+    assert(st_2);
+}
+
 void compare_words(Tree* tree) {
+    assert(tree);
+
+    char def_1[BUFFER_SIZE] = { };
+    char def_2[BUFFER_SIZE] = { };
+
+    PathStack st_1 = stack_initialization(ceil_log2(tree->free));
+    PathStack st_2 = stack_initialization(ceil_log2(tree->free));
+
+    input_object(def_1);
+    input_object(def_2);
+
+    bool is_find_1 = false;
+    // graph_traversal(tree, tree->root, def_1, &is_find_1, &st_1);
+    //  обработка ошибок
+
+    bool is_find_2 = false;
+    // graph_traversal(tree, tree->root, def_2, &is_find_2, &st_2);
+    //  обработка ошибок
+
+    stack_destroy(&st_1);
 }
 
 void handle_op(Tree* tree, UserOp op) {

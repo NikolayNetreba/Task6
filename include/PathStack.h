@@ -6,18 +6,25 @@
 #include <string.h>
 
 typedef struct {
-    const char* val;
-    bool is_yes; // true — ДА, false — НЕТ
-} PathElem;
-
-typedef struct {
-    PathElem* data;
+    bool* data;
     size_t capacity;
     size_t free;
-    size_t string_len;
 } PathStack;
 
+typedef struct {
+    const char* val;
+    int left_child_idx;
+    int right_child_idx;
+} Node;
+
+typedef struct {
+    Node* data;
+    int root;
+    int free;
+    int capacity;
+} Tree;
+
 PathStack stack_initialization(size_t size);
-void stack_push(PathStack* st, const char* val, bool is_yes);
-void stack_print(PathStack* st);
+void stack_push(PathStack* st, bool is_yes);
+void stack_print(Tree* tree, int start_idx, PathStack* st, int from_pos, int to_pos);
 void stack_destroy(PathStack* st);
